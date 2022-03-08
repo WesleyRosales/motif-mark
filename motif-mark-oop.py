@@ -184,7 +184,6 @@ class Figure:
 
         for motif in motif_holder.keys():
             start_stop = gene_holder[self.name].motif_locations(motif_holder[motif])
-            print(start_stop)
             ctx.set_source_rgb(color_palette[color_count][0], color_palette[color_count][1], color_palette[color_count][2]) # change motif color for every motif object
             color_count += 1
 
@@ -194,10 +193,6 @@ class Figure:
                 ctx.line_to(start_stop[1][i]*figure_scale_factor, self.height + 250 - (20*(color_count)))
                 ctx.stroke()
     
-
-
-
-
 
 # save all motifs within a list
 motif_file = open(args.motif, "r")
@@ -289,7 +284,6 @@ for j in range(len(motif_list)):
 
 #calling the methods in the figure objects to create the figure
 for key in figure_holder.keys():
-    print(key)
     figure_holder[key].base()
     figure_holder[key].find_motifs()
 
