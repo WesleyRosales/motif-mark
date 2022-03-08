@@ -25,7 +25,6 @@ def get_args():
 
 args = get_args()
 
-
 # function to translate IUPAC nucleotide notation to DNA/RNA sequences
 # input: IUPAC notation sequence
 # output: list of all DNA/RNA sequences corresponding to that notation
@@ -106,8 +105,6 @@ class Mtf:
         self.iupac = iupac
         self.motifs = iupac_convert(iupac)
 
-
-
 # gene object that stores:
     # name of gene
     # sequence length
@@ -134,9 +131,6 @@ class Gene:
         
         return start_stop
 
-            
-
-
 #figure object that holds information relevent for cairo
     #gene name same as that of the gene class
     #intron and exon start positions to make the base of the figure
@@ -162,16 +156,19 @@ class Figure:
         ctx.set_font_size(15)
         ctx.move_to(0, self.height)
         ctx.show_text(self.name)
+
         # intron line
         ctx.set_line_width(5)
         ctx.move_to(0, self.height + 250)
         ctx.line_to(self.width, self.height + 250)
         ctx.stroke()
+
         #bottom border of figure
         ctx.set_line_width(2)
         ctx.move_to(0, self.height + 280)
         ctx.line_to(self.width, self.height + 280)
         ctx.stroke()
+
         # exons
         ctx.set_line_width(20)
         for i in range(len(self.exon_start_stop[0])):
@@ -179,17 +176,19 @@ class Figure:
             ctx.line_to(self.exon_start_stop[1][i], self.height + 250)
             ctx.stroke()
     
+    #draws where the motifs lie on the input sequence on tracks over the sequence drawing
     def find_motifs(self):
-        color_count = 0
+        color_count = 0 
         figure_scale_factor = self.width/gene_holder[self.name].sequence_length
         ctx.set_line_width(15)
-        ctx.set_source_rgb(color_palette[3][0], color_palette[3][1], color_palette[3][2])
 
         for motif in motif_holder.keys():
             start_stop = gene_holder[self.name].motif_locations(motif_holder[motif])
             print(start_stop)
-            ctx.set_source_rgba(color_palette[color_count][0], color_palette[color_count][1], color_palette[color_count][2])
+            ctx.set_source_rgb(color_palette[color_count][0], color_palette[color_count][1], color_palette[color_count][2]) # change motif color for every motif object
             color_count += 1
+
+            # draw every motif on its designated track (every 20 pixels)
             for i in range(len(start_stop[0])):
                 ctx.move_to(start_stop[0][i]*figure_scale_factor, self.height + 250 - (20*(color_count)))
                 ctx.line_to(start_stop[1][i]*figure_scale_factor, self.height + 250 - (20*(color_count)))
@@ -218,12 +217,11 @@ new_string = ""
 seq_file = open(args.fasta, "r")
 
 # line-by-line, look for header and sequence. sequence lines will be stripped on \n and concatenated to a new string.
-
 for line in seq_file:
     line = line.strip()
     if line not in gene_holder.keys() and line.startswith(">"):
         if len(new_string) != 0:
-            gene_holder[header] = Gene(header, new_string)
+            gene_holder[header] = Gene(header, new_string) # once full sequence is created and a new header is found, create gene object and put it in a gene object holder dictionary
             new_string = ""
         header = line
         continue
@@ -258,10 +256,9 @@ ctx.fill() # fill the rectangle
 
 # COLOR PALETTE
 #length 10 list of colors to use for motifs
-# NOTE: custom palette, may not be color-blind friendly. should review before submission
 color_palette = [[221/255, 106/255, 173/255],
                 [0, 105/255, 137,255],
-                [124/255, 11/255, 43/255],
+                [165/255, 208/255, 168/255],
                 [127/255, 41/255, 130/255],
                 [117/255, 142/255, 79/255],
                 [234/255, 191/255, 203/255],
@@ -281,11 +278,11 @@ ctx.select_font_face("Arial",
 
 #move the text to the top-right corner of the surface
 ctx.move_to(WIDTH*(8/10), 15)
-ctx.show_text("MOTIF") 
+ctx.show_text("MOTIFS") 
 
 #cycle through motif_list and print each one below the previous
 for j in range(len(motif_list)):
-    ctx.set_source_rgba(color_palette[j][0], color_palette[j][1], color_palette[j][2])
+    ctx.set_source_rgba(color_palette[j][0], color_palette[j][1], color_palette[j][2]) #change color for every motif object
     track = (j+2)*20
     ctx.move_to(WIDTH*(8/10), track)
     ctx.show_text(motif_list[j])
@@ -296,12 +293,16 @@ for key in figure_holder.keys():
     figure_holder[key].base()
     figure_holder[key].find_motifs()
 
-surface.write_to_png("TEST_DONOTKEEP.png")  # Output to PNG
+
+output_name = re.search("([^\/]+$)", args.fasta).group() #regex to find last "/" in fasta input and take all on string after it
+output_name = output_name[:output_name.index(".fa")] #remove ".fa" or ".fasta" in fasta input to keep the name only
+surface.write_to_png(output_name + ".png")  # Output to PNG
 
 
-#NOTE: plan going forward is to find a way to create all the objects and use them to create
-# the figure.
-# 4. alter color scheme to make each motif more identifiable.
-
-
+"""
+NOTE: Current work fulfills requirements. If time allows:
+1. create additional tracks to prevent overlapping of motifs
+2. use different coloring scheme that is color-blind friendly
+3. add more details to readme
+"""
 
