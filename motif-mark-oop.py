@@ -183,15 +183,18 @@ class Figure:
         color_count = 0
         figure_scale_factor = self.width/gene_holder[self.name].sequence_length
         ctx.set_line_width(15)
+        ctx.set_source_rgb(color_palette[3][0], color_palette[3][1], color_palette[3][2])
+
         for motif in motif_holder.keys():
             start_stop = gene_holder[self.name].motif_locations(motif_holder[motif])
             print(start_stop)
-            ctx.set_source_rgb(color_palette[color_count][0], color_palette[color_count][1], color_palette[color_count][2])
+            ctx.set_source_rgba(color_palette[color_count][0], color_palette[color_count][1], color_palette[color_count][2])
             color_count += 1
             for i in range(len(start_stop[0])):
-                ctx.move_to(start_stop[0][i]*figure_scale_factor, self.height + 250 - (20*(color_count + 1)))
-                ctx.line_to(start_stop[1][i]*figure_scale_factor, self.height + 250 - (20*(color_count + 1)))
-                ctx.stroke
+                ctx.move_to(start_stop[0][i]*figure_scale_factor, self.height + 250 - (20*(color_count)))
+                ctx.line_to(start_stop[1][i]*figure_scale_factor, self.height + 250 - (20*(color_count)))
+                ctx.stroke()
+    
 
 
 
@@ -282,23 +285,23 @@ ctx.show_text("MOTIF")
 
 #cycle through motif_list and print each one below the previous
 for j in range(len(motif_list)):
-    ctx.set_source_rgb(color_palette[j][0], color_palette[j][1], color_palette[j][2])
+    ctx.set_source_rgba(color_palette[j][0], color_palette[j][1], color_palette[j][2])
     track = (j+2)*20
     ctx.move_to(WIDTH*(8/10), track)
     ctx.show_text(motif_list[j])
 
 #calling the methods in the figure objects to create the figure
 for key in figure_holder.keys():
+    print(key)
     figure_holder[key].base()
     figure_holder[key].find_motifs()
 
+surface.write_to_png("TEST_DONOTKEEP.png")  # Output to PNG
 
 
 #NOTE: plan going forward is to find a way to create all the objects and use them to create
 # the figure.
-# 3. color motifs accurately
 # 4. alter color scheme to make each motif more identifiable.
 
-surface.write_to_png("TEST_DONOTKEEP.png")  # Output to PNG
 
 
